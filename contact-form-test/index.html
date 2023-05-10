@@ -2,34 +2,81 @@
 <head>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://www.google.com/recaptcha/api.js"></script> 
+   
+    <script>
+function submitToAPI(e) {
+       e.preventDefault();
+      var URL = "https://1nbybw2f6j.execute-api.us-east-2.amazonaws.com/prod/email";
+
+
+       var name = document.getElementById("name-input").value;
+       var phone = document.getElementById("phone-input").value;
+       var email = document.getElementById("email-input").value;
+       var desc = document.getElementById("description-input").value;
+	   if (name=="" || phone=="" || email=="" || desc=="")
+        {
+            alert("Please Fill All Required Field");
+            return false;
+        }
+		
+
+       var data = {
+          name : name,
+          phone : phone,
+          email : email,
+          desc : desc
+        };
+
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.open("POST", "https://1nbybw2f6j.execute-api.us-east-2.amazonaws.com/prod/email");
+		xmlhttp.setRequestHeader("Content-Type", "application/json");
+		xmlhttp.send(JSON.stringify(data));
+		xmlhttp.onreadystatechange = function() {
+		if (xmlhttp.readyState === 4) {
+			var response = JSON.parse(xmlhttp.responseText);
+			if (xmlhttp.status === 200 ) {
+				console.log('successful');
+				document.getElementById("contact-form").innerHTML = "<h1>Thank you for your message/feedback<br>our team will get back to you soon!</h1>";
+		    } else {
+			    console.log('failed');
+			}
+		}
+	}
+	
+	document.getElementById('contact-form').reset();
+	  
+	} 
+</script>
+
 </head>
 <body>
-<form id="contact-form" method="post">
-      <h4>Ya name:</h4>
-      <input type="text" style="height:35px;" id="name-input" placeholder="Enter name here" class="form-control" style="width:100%;" /><br/>
-      <h4>Phone:</h4>
-      <input type="phone" style="height:35px;" id="phone-input" placeholder="Enter phone number" class="form-control" style="width:100%;"/><br/>
-      <h4>Email:</h4>
-      <input type="email" style="height:35px;" id="email-input" placeholder="Enter email here..." class="form-control" style="width:100%;"/><br/>
-      <h4>How can we help you?</h4>
-      <textarea id="description-input" rows="3" placeholder="Enter your message..." class="form-control" style="width:100%;"></textarea><br/>
-      
-      <div class="g-recaptcha" data-sitekey="6Ld0560lAAAAAMR2rxOXBn50ze9Y2JMrzJg4W5kP" class="form-control" style="width:100%;" data-callback="ccb" data-expired-callback="onExpired"></div>
+    <form id="contact-form" method="post">
+        <h4>Ya name:</h4>
+        <input type="text" style="height:35px;" id="name-input" placeholder="Enter name here" class="form-control" style="width:100%;" /><br/>
+        <h4>Phone:</h4>
+        <input type="phone" style="height:35px;" id="phone-input" placeholder="Enter phone number" class="form-control" style="width:100%;"/><br/>
+        <h4>Email:</h4>
+        <input type="email" style="height:35px;" id="email-input" placeholder="Enter email here..." class="form-control" style="width:100%;"/><br/>
+        <h4>How can we help you?</h4>
+        <textarea id="description-input" rows="3" placeholder="Enter your message..." class="form-control" style="width:100%;"></textarea><br/>
         
-      <script>
-        function ccb(response) {
-           $(':input[type="submit"]').prop('disabled', false);
-        }
-
-        function onExpired() {
+        <div class="g-recaptcha" data-sitekey="6Ld0560lAAAAAMR2rxOXBn50ze9Y2JMrzJg4W5kP" class="form-control" style="width:100%;" data-callback="ccb" data-expired-callback="onExpired"></div>
+        <input type="hidden" id="recaptcha-response" name="recaptcha-response" />
+      
+        <script>
+          function ccb(response) {
+            $(':input[type="submit"]').prop('disabled', false);
+            $('#recaptcha-response').val(response);
+          }
+      
+          function onExpired() {
             $('button[type="submit"]').prop('disabled', true);
-        }
-       </script>
-
-      <button type="submit" disabled onClick="submitToAPI(event)" class="btn btn-three pull-right" style="margin-top:20px;">SEND FORM</button>
-
-
-</form>
+            $('#recaptcha-response').val('');
+          }
+        </script>
+      
+        <button type="submit" disabled onClick="submitToAPI(event)" class="btn btn-three pull-right" style="margin-top:20px;">SEND FORM</button>
+      </form>
 
 </body>
 </html>
